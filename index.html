@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+<meta charset="UTF-8">
+<title>Kad Raya Premium</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Great+Vibes&display=swap');
+
+  body {
+    margin: 0;
+    font-family: 'Segoe UI', sans-serif;
+    background: linear-gradient(to top, #0b1d3a, #020811);
+    color: #fff;
+    text-align: center;
+    overflow-x: hidden;
+  }
+
+  .container {
+    padding: 20px;
+  }
+
+  input, textarea, button {
+    width: 90%;
+    max-width: 400px;
+    padding: 12px;
+    margin: 10px 0;
+    border-radius: 10px;
+    border: none;
+    font-size: 16px;
+  }
+
+  button {
+    background: #f5c542;
+    color: #000;
+    font-weight: bold;
+    cursor: pointer;
+    transition: 0.3s;
+  }
+
+  button:hover {
+    transform: scale(1.05);
+  }
+
+  .card {
+    display: none;
+    animation: fadeIn 2s ease;
+    position: relative;
+    min-height: 500px;
+  }
+
+  h1 {
+    font-family: 'Great Vibes', cursive;
+    font-size: 50px;
+    margin-top: 20px;
+    color: #ffd700;
+    animation: float 3s ease-in-out infinite;
+  }
+
+  h2 {
+    font-size: 30px;
+    color: #fff;
+    margin-top: 10px;
+  }
+
+  p {
+    font-size: 18px;
+    color: #fff;
+    max-width: 500px;
+    margin: 10px auto;
+  }
+
+  /* Ketupat dan lampu bergerak */
+  .ketupat, .lampu {
+    font-size: 40px;
+    position: absolute;
+    animation: swing 4s ease-in-out infinite;
+  }
+
+  .lampu {
+    font-size: 25px;
+    animation: blink 1.5s infinite;
+  }
+
+  @keyframes fadeIn { from{opacity:0;} to{opacity:1;} }
+  @keyframes float { 0%{transform:translateY(0);} 50%{transform:translateY(-15px);} 100%{transform:translateY(0);} }
+  @keyframes swing { 0%{transform:rotate(-10deg);} 50%{transform:rotate(10deg);} 100%{transform:rotate(-10deg);} }
+  @keyframes blink { 0%,50%,100%{opacity:1;} 25%,75%{opacity:0.3;} }
+</style>
+</head>
+<body>
+
+<div class="container">
+
+  <!-- FORM INPUT -->
+  <div id="form">
+    <h2>🎉 Kad Raya Premium 🎉</h2>
+    <input type="text" id="nama" placeholder="Nama penerima">
+    <textarea id="ucapan" placeholder="Ucapan raya anda"></textarea>
+    <button onclick="paparKad()">Siap & Papar Kad</button>
+  </div>
+
+  <!-- KAD PREMIUM -->
+  <div class="card" id="kad">
+    <!-- Lampu & ketupat -->
+    <div class="ketupat" style="top:80px; left:20px;">🎐</div>
+    <div class="ketupat" style="top:100px; right:20px;">🎐</div>
+    <div class="lampu" style="top:50px; left:50%;">✨</div>
+    <div class="lampu" style="top:150px; right:40%;">✨</div>
+
+    <!-- Teks -->
+    <h1>Salam Aidilfitri</h1>
+    <h2 id="paparNama"></h2>
+    <p id="paparUcapan"></p>
+
+    <!-- Audio Lagu Raya -->
+    <audio autoplay loop controls>
+      <source src="https://cdn.pixabay.com/download/audio/2022/03/15/audio_9e6db1c1c5.mp3" type="audio/mp3">
+    </audio>
+
+    <p style="margin-top:20px;">Maaf Zahir & Batin 🤍</p>
+  </div>
+
+</div>
+
+<script>
+function paparKad() {
+  const nama = document.getElementById("nama").value || "Sahabatku";
+  const ucapan = document.getElementById("ucapan").value || "Semoga Aidilfitri ini membawa keberkatan & kebahagiaan.";
+
+  document.getElementById("paparNama").innerText = nama;
+  document.getElementById("paparUcapan").innerText = ucapan;
+
+  document.getElementById("form").style.display = "none";
+  document.getElementById("kad").style.display = "block";
+}
+</script>
+
+</body>
+</html>
