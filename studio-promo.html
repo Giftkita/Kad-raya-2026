@@ -1,0 +1,366 @@
+<!doctype html>
+<html lang="ms"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Studio Promo 3D</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Nunito:wght@600;700;800;900&display=swap">
+<script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"}}</script>
+<style>
+:root{--ink:#2f2440;--ink2:#6b5f80;--bg:#fff4ec;--card:#fff;--coral:#ff6b81;--sun:#ffc94d;--mint:#7fd8b8;--line:#2f2440;
+  --display:"Baloo 2","Nunito",ui-rounded,system-ui,sans-serif;--body:"Nunito",ui-rounded,system-ui,sans-serif;color-scheme:light}
+*{box-sizing:border-box}html,body{margin:0;height:100%}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);-webkit-tap-highlight-color:transparent}
+#app{max-width:980px;margin:0 auto;padding:12px 16px calc(16px + env(safe-area-inset-bottom,0px));display:grid;gap:14px;grid-template-columns:minmax(0,1fr)}
+@media(min-width:860px){#app{grid-template-columns:380px minmax(0,1fr);align-items:start}#left{position:sticky;top:12px}}
+h1{font-family:var(--display);font-size:24px;margin:0 0 2px;line-height:1.1}
+.sub{font-size:13px;color:var(--ink2);font-weight:700;margin:0 0 8px}
+#stageWrap{position:relative;width:100%;max-width:360px;margin:0 auto;aspect-ratio:9/16;border:3px solid var(--line);border-radius:22px;overflow:hidden;background:#ffe1d6;box-shadow:0 5px 0 var(--line)}
+@media(max-width:859px){#stageWrap{max-width:min(360px,calc(56vh * 9 / 16))}}
+#out{width:100%;height:100%;display:block}
+#load{position:absolute;inset:0;display:grid;place-items:center;background:rgba(255,244,236,.85);font-weight:900;text-align:center;padding:20px}
+#load[hidden]{display:none}
+.ctrl{display:flex;gap:8px;margin-top:10px;justify-content:center;flex-wrap:wrap}
+button{font-family:var(--body);color:var(--ink);cursor:pointer}
+.b{border:2.5px solid var(--line);background:#fff;border-radius:14px;padding:8px 14px;font-weight:900;font-size:14px;box-shadow:0 3px 0 var(--line)}
+.b:active{transform:translateY(2px);box-shadow:0 1px 0 var(--line)}.b:disabled{opacity:.5;pointer-events:none}
+.b.p{background:var(--coral);color:#fff}.b.y{background:var(--sun)}.b.s{padding:5px 10px;font-size:12.5px;border-radius:11px}
+.tabs{display:flex;gap:6px;overflow-x:auto;padding-bottom:2px}
+.tabs button{flex:none;border:2.5px solid var(--line);background:#fff;border-radius:99px;padding:6px 14px;font-weight:900;font-size:13.5px}
+.tabs button.on{background:var(--sun)}
+.panel{background:var(--card);border:2.5px solid var(--line);border-radius:18px;padding:14px;margin-top:10px}
+.lbl{font-size:11px;font-weight:900;letter-spacing:.06em;text-transform:uppercase;color:var(--ink2);margin:10px 0 4px}
+.lbl:first-child{margin-top:0}
+input[type=text],input[type=number],textarea,select{width:100%;border:2.5px solid var(--line);border-radius:12px;padding:8px 10px;font:700 14px var(--body);color:var(--ink);background:#fff}
+textarea{resize:vertical;min-height:70px}
+.row{display:flex;gap:8px;align-items:center}.row>*{min-width:0}
+.seg{display:flex;border:2.5px solid var(--line);border-radius:12px;overflow:hidden}
+.seg button{flex:1;border:0;background:#fff;padding:7px 4px;font-weight:900;font-size:13px}.seg button+button{border-left:2px solid var(--line)}.seg button.on{background:var(--mint)}
+.note{font-size:12.5px;color:var(--ink2);line-height:1.45;margin-top:8px;font-weight:700}
+.warn{background:#fff3c4;border:2px solid #e8cf73;border-radius:12px;padding:8px 10px;font-size:12.5px;font-weight:700;line-height:1.45;margin-top:8px}
+.slide{border:2.5px solid var(--line);border-radius:16px;padding:10px;margin-bottom:10px;background:#fffaf6}
+.slide.cur{box-shadow:0 0 0 3px var(--sun)}
+.shd{display:flex;gap:6px;align-items:center;margin-bottom:6px}
+.shd b{flex:1;font-family:var(--display);font-size:16px}
+.thumb{width:64px;height:64px;border-radius:12px;border:2px solid var(--line);object-fit:cover;background:#f3ebe6;flex:none}
+.aud{font-size:12px;font-weight:800;color:var(--ink2)}
+.swatch{display:flex;gap:6px;flex-wrap:wrap}.swatch button{width:34px;height:34px;border-radius:50%;border:2.5px solid var(--line)}.swatch button.on{box-shadow:0 0 0 3px var(--sun)}
+input[type=range]{width:100%}
+.prog{height:10px;border:2px solid var(--line);border-radius:99px;overflow:hidden;background:#fff;margin-top:8px}.prog i{display:block;height:100%;width:0;background:var(--coral)}
+#vidOut{width:100%;max-width:300px;border-radius:14px;border:2.5px solid var(--line);display:block;margin:10px auto 0}
+.toast{position:fixed;left:50%;top:max(14px,env(safe-area-inset-top,0px));transform:translateX(-50%);background:var(--ink);color:#fff;font-weight:800;font-size:14px;border-radius:99px;padding:8px 16px;z-index:60;max-width:92vw;text-align:center;animation:tt 3s ease forwards}
+@keyframes tt{0%{opacity:0}10%,85%{opacity:1}100%{opacity:0}}
+[hidden]{display:none!important}
+</style></head><body>
+<div id="app">
+ <div id="left">
+  <h1>🎬 Studio Promo 3D</h1><p class="sub">Watak 3D terangkan produk affiliate kau, siap slide & sari kata</p>
+  <div id="stageWrap"><canvas id="out" width="720" height="1280"></canvas><div id="load">Memuatkan watak 3D...</div></div>
+  <div class="ctrl"><button class="b p" id="play">▶ Main</button><button class="b" id="stop" hidden>■ Henti</button><button class="b y" id="rec">⏺ Buat Video</button></div>
+  <div class="prog" id="progBox" hidden><i id="prog"></i></div>
+  <div id="recNote" class="note" style="text-align:center"></div>
+  <video id="vidOut" controls playsinline hidden></video>
+  <div class="ctrl"><button class="b s" id="saveVid" hidden>💾 Simpan video</button></div>
+ </div>
+ <div id="right">
+  <div class="tabs" id="tabs"><button data-t="produk" class="on">🛍️ Produk</button><button data-t="slide">🗂️ Slide</button><button data-t="watak">🧍 Watak</button><button data-t="suara">🔊 Suara</button></div>
+  <div class="panel" id="p_produk">
+   <div class="lbl">Nama produk</div><input type="text" id="pName" maxlength="40">
+   <div class="lbl">Harga (pilihan)</div><input type="text" id="pPrice" maxlength="24" placeholder="cth: RM29.90">
+   <div class="lbl">Gambar produk</div>
+   <div class="row"><img class="thumb" id="pImgT" alt=""><div style="flex:1"><button class="b s" id="pImgB">📷 Pilih gambar</button><input type="file" id="pImgF" accept="image/*" hidden><div class="note">Guna gambar produk dari kedai TikTok Shop kau. Gambar tanpa latar lagi cantik.</div></div></div>
+   <div class="lbl">Ayat ajakan akhir</div><input type="text" id="pCta" maxlength="40">
+   <div class="lbl">Warna tema</div><div class="swatch" id="themes"></div>
+   <div class="warn">Pastikan fungsi & dakwaan produk betul ikut maklumat penjual. Jangan buat dakwaan kesihatan yang tak disahkan. TikTok boleh tarik video yang mengelirukan.</div>
+  </div>
+  <div class="panel" id="p_slide" hidden>
+   <div class="slide" style="background:#eefaf4"><div class="shd"><b>📥 Import dari Claude & Canva</b></div>
+    <button class="b s y" id="bulkImg">🖼️ Muat naik slide Canva (pilih semua sekaligus)</button><input type="file" id="bulkF" accept="image/*" multiple hidden>
+    <div class="note">Gambar disusun ikut nama fail (slide 1, 2, 3...). Satu gambar = satu slide.</div>
+    <div class="lbl">Tampal skrip dari Claude</div><textarea id="scriptIn" placeholder="SLIDE 1&#10;Skrip: Hai semua! ...&#10;&#10;SLIDE 2&#10;Skrip: ..."></textarea>
+    <button class="b s p" id="scriptGo" style="margin-top:6px">✅ Guna skrip ni</button></div>
+   <div id="slides"></div>
+   <div class="row"><button class="b s" id="addSlide">＋ Tambah slide</button><select id="addType" style="flex:1"><option value="fungsi">Fungsi</option><option value="cara">Cara guna</option><option value="kenapa">Kenapa best</option><option value="harga">Harga / promo</option><option value="tajuk">Tajuk</option><option value="cta">Ajakan beli (beg kuning)</option></select></div>
+   <div class="note">Skrip = ayat yang watak cakap. Poin = tulisan yang keluar dalam slide. Tekan ▶ Main untuk tengok.</div>
+  </div>
+  <div class="panel" id="p_watak" hidden>
+   <div class="lbl">Watak</div>
+   <div class="row"><button class="b s" id="useDef">🧕 Cikgu (asal)</button><button class="b s" id="upGlb">📦 Muat naik GLB dari Meshy</button><input type="file" id="glbF" accept=".glb,.gltf,model/gltf-binary" hidden></div>
+   <div class="note" id="charInfo"></div>
+   <div class="lbl">Kedudukan</div><div class="seg" id="posSeg"><button data-v="kiri">Kiri</button><button data-v="tengah">Tengah</button><button data-v="kanan">Kanan</button></div>
+   <div class="lbl">Saiz watak</div><input type="range" id="cSize" min="0.6" max="1.5" step="0.01">
+   <div class="lbl">Gaya bercakap</div><div class="seg" id="gesSeg"><button data-v="tenang">Tenang</button><button data-v="ceria">Ceria</button><button data-v="semangat">Semangat</button></div>
+   <div class="warn">Untuk watak sendiri: dalam Meshy, buat watak <b>humanoid</b>, tekan <b>Rig</b> (Auto-Rigging), lepas tu download <b>GLB</b>. Watak tanpa rig cuma boleh bergoyang, tangan tak bergerak.</div>
+  </div>
+  <div class="panel" id="p_suara" hidden>
+   <div class="lbl">Jenis suara</div><div class="seg" id="vSeg"><button data-v="tts">🤖 Suara automatik</button><button data-v="fail">🎙️ Suara sendiri / fail</button></div>
+   <div id="ttsBox"><div class="lbl">Suara</div><select id="vVoice"></select>
+    <div class="lbl">Laju</div><input type="range" id="vRate" min="0.7" max="1.4" step="0.05"><div class="lbl">Nada</div><input type="range" id="vPitch" min="0.6" max="1.6" step="0.05">
+    <button class="b s" id="vTest" style="margin-top:8px">🔊 Cuba suara</button>
+    <div class="warn">Suara automatik keluar masa ▶ Main, tapi <b>tak masuk dalam fail video</b> (sekatan browser). Untuk video bersuara: guna "Suara sendiri / fail" (rakam atau muat naik suara setiap slide), atau rakam skrin telefon masa ▶ Main.</div></div>
+   <div id="failBox" hidden><div class="note">Setiap slide dalam tab 🗂️ Slide ada butang 🎙️ Rakam dan 📁 Fail suara. Panjang slide ikut panjang suara. Fail suara boleh dibuat di CapCut atau ElevenLabs (MP3/M4A/WAV).</div></div>
+   <div class="lbl">Muzik latar</div><div class="seg" id="mSeg"><button data-v="on">🎵 Ada</button><button data-v="off">Senyap</button></div>
+  </div>
+ </div>
+</div>
+<script type="module">
+import * as THREE from 'three';
+import {GLTFLoader} from 'three/addons/loaders/GLTFLoader.js';
+const $=id=>document.getElementById(id);
+const toast=m=>{const d=document.createElement('div');d.className='toast';d.textContent=m;document.body.appendChild(d);setTimeout(()=>d.remove(),3100)};
+const W=720,H=1280,out=$('out'),X=out.getContext('2d');
+const D2R=Math.PI/180;
+/* ================= project ================= */
+const THEMES=[['#ffe1d6','#ffb8c6','#ff6b81'],['#dff4ff','#b6dcff','#3a7bd5'],['#e6fbef','#b5ecd0','#1f9d6b'],['#fff3c9','#ffd98a','#e08a00'],['#efe6ff','#d4c2ff','#7a4fd6'],['#2a2340','#4b3d74','#ffc94d']];
+const TYPES={tajuk:'Tajuk',fungsi:'Fungsi',cara:'Cara guna',kenapa:'Kenapa best',harga:'Harga / promo',cta:'Ajakan beli'};
+const DEF={name:'Botol Air Pintar',price:'RM29.90',cta:'Tekan beg kuning sekarang!',theme:0,pos:'kiri',size:1,gesture:'ceria',voice:{mode:'tts',uri:'',rate:1,pitch:1.1},music:'on',img:null,
+ slides:[{type:'tajuk',title:'Botol Air Pintar',points:['Contoh produk','Tukar ikut produk kau'],script:'Hai semua! Hari ni saya nak kenalkan satu barang yang saya suka sangat, Botol Air Pintar!'},
+  {type:'fungsi',title:'Apa fungsi dia?',points:['Tunjuk suhu air di penutup','Simpan air sejuk lebih lama','Saiz muat beg & kereta'],script:'Fungsi dia, penutup dia boleh tunjuk suhu air. Air sejuk tahan lama, dan saiz dia muat dalam beg.'},
+  {type:'cara',title:'Cara guna',points:['Isi air','Tutup rapat','Sentuh penutup untuk lihat suhu'],script:'Cara guna senang je. Isi air, tutup rapat, lepas tu sentuh penutup untuk tengok suhu.'},
+  {type:'harga',title:'Harga istimewa',points:['RM29.90','Stok terhad'],script:'Harga sekarang cuma dua puluh sembilan ringgit sembilan puluh sen. Stok terhad tau!'},
+  {type:'cta',title:'Nak beli?',points:[],script:'Nak beli? Tekan beg kuning kat bawah ni sekarang!'}]};
+let P;try{P=JSON.parse(localStorage.getItem('sp3d_proj')||'null')}catch(e){P=null}
+if(!P||!Array.isArray(P.slides))P=JSON.parse(JSON.stringify(DEF));P={...JSON.parse(JSON.stringify(DEF)),...P,voice:{...DEF.voice,...(P.voice||{})}};
+const AUD={};// per-slide audio (in memory): idx -> {buf, name}
+let saveT=null;function save(){clearTimeout(saveT);saveT=setTimeout(()=>{try{localStorage.setItem('sp3d_proj',JSON.stringify(P))}catch(e){try{const c={...P,img:null};localStorage.setItem('sp3d_proj',JSON.stringify(c))}catch(e2){}}},300)}
+/* product image */
+let prodImg=null;function placeholderImg(){const c=document.createElement('canvas');c.width=c.height=600;const x=c.getContext('2d');const g=x.createLinearGradient(0,0,0,600);g.addColorStop(0,'#e9f6ff');g.addColorStop(1,'#cfe6f7');x.fillStyle=g;x.fillRect(0,0,600,600);
+ x.fillStyle='#7fc3ef';x.strokeStyle='#2f2440';x.lineWidth=10;x.beginPath();x.roundRect(220,140,160,380,48);x.fill();x.stroke();x.fillStyle='#2f2440';x.beginPath();x.roundRect(232,90,136,70,22);x.fill();
+ x.fillStyle='#9ff0c9';x.beginPath();x.roundRect(250,104,100,40,10);x.fill();x.fillStyle='#2f2440';x.font='900 30px Nunito,sans-serif';x.textAlign='center';x.textBaseline='middle';x.fillText('8°C',300,125);
+ x.fillStyle='rgba(255,255,255,.55)';x.beginPath();x.roundRect(240,190,26,260,13);x.fill();x.fillStyle='#2f2440';x.font='800 26px Nunito,sans-serif';x.fillText('gambar contoh',300,565);return c}
+function loadProd(){if(P.img){const im=new Image();im.onload=()=>{prodImg=im};im.onerror=()=>{prodImg=placeholderImg()};im.src=P.img;$('pImgT').src=P.img}else{prodImg=placeholderImg();$('pImgT').src=prodImg.toDataURL()}}
+/* ================= 3D ================= */
+const C3=document.createElement('canvas');C3.width=W;C3.height=H;
+let R3=null,scene,cam,charRoot=null,CH=null;
+try{R3=new THREE.WebGLRenderer({canvas:C3,alpha:true,antialias:true,preserveDrawingBuffer:true});R3.setPixelRatio(1);R3.setSize(W,H,false);R3.outputColorSpace=THREE.SRGBColorSpace;R3.toneMapping=THREE.ACESFilmicToneMapping;R3.toneMappingExposure=1.05}catch(e){R3=null}
+scene=new THREE.Scene();cam=new THREE.PerspectiveCamera(30,W/H,0.05,50);cam.position.set(0,1.13,4.4);cam.lookAt(0,1.13,0);
+scene.add(new THREE.HemisphereLight(0xffffff,0xffe0d0,1.6));const key=new THREE.DirectionalLight(0xffffff,2.2);key.position.set(1.5,3,4);scene.add(key);const rim=new THREE.DirectionalLight(0xffd0e0,1.2);rim.position.set(-2,2,-2);scene.add(rim);
+const clean=s=>String(s||'').replace(/[^A-Za-z0-9_]/g,'');
+const PAT={hips:/hips?$/i,spine:/spine$/i,chest:/(spine0?1|spine2|chest|upperchest)$/i,neck:/neck$/i,head:/head$/i,
+ lArm:/(left|^l|_l)(upper)?_?arm$/i,lFore:/(left|^l|_l)_?(fore_?arm|lower_?arm|elbow)$/i,lHand:/(left|^l|_l)_?(hand|wrist)$/i,
+ rArm:/(right|^r|_r)(upper)?_?arm$/i,rFore:/(right|^r|_r)_?(fore_?arm|lower_?arm|elbow)$/i,rHand:/(right|^r|_r)_?(hand|wrist)$/i};
+function findBones(root){const bones=[];root.traverse(o=>{if(o.isBone)bones.push(o)});const B={};
+ for(const[k,re] of Object.entries(PAT)){const cand=bones.filter(b=>re.test(clean(b.name))&&!/end$|top|twist|index|thumb|finger|toe|leg|shoulder/i.test(clean(b.name).replace(re,'')+'')&&!(k.endsWith('Arm')&&/fore|lower/i.test(clean(b.name))));
+  if(k==='chest'&&!cand.length){const sp=bones.filter(b=>/spine/i.test(b.name));if(sp.length>1)cand.push(sp[1])}if(cand.length)B[k]=cand[0]}return B}
+const qa=(ax,d)=>new THREE.Quaternion().setFromAxisAngle(ax,d*D2R);const _e=new THREE.Euler();const qd=(x,y,z)=>new THREE.Quaternion().setFromEuler(_e.set(x*D2R,y*D2R,z*D2R,'ZYX'));
+const YA=new THREE.Vector3(0,1,0),ZA=new THREE.Vector3(0,0,1);
+class Char{
+ constructor(gltf,label){this.label=label;this.root=new THREE.Group();this.model=gltf.scene;this.root.add(this.model);
+  this.model.traverse(o=>{if(o.isMesh){o.frustumCulled=false;if(o.material){const ms=Array.isArray(o.material)?o.material:[o.material];ms.forEach(m=>{if(m.map)m.map.colorSpace=THREE.SRGBColorSpace;if('metalness' in m)m.metalness=Math.min(m.metalness,0.2)})}}});
+  // normalise height to 1 and stand on y=0, facing +z
+  this.model.updateMatrixWorld(true);let box=new THREE.Box3().setFromObject(this.model);let h=box.max.y-box.min.y;if(!(h>0))h=1;const s=0.95/h;this.model.scale.multiplyScalar(s);this.model.updateMatrixWorld(true);
+  box=new THREE.Box3().setFromObject(this.model);const c=box.getCenter(new THREE.Vector3());this.model.position.x-=c.x;this.model.position.z-=c.z;this.model.position.y-=box.min.y;this.model.updateMatrixWorld(true);
+  this.B=findBones(this.model);this.P={};for(const[k,b] of Object.entries(this.B)){const pw=new THREE.Quaternion();b.parent.getWorldQuaternion(pw);const w=new THREE.Quaternion();b.getWorldQuaternion(w);this.P[k]={ip:pw.invert(),rw:w}}
+  const rq=this.root.getWorldQuaternion(new THREE.Quaternion());
+  this.ARM=null;if(this.B.lArm&&this.B.lFore&&this.B.lHand&&this.B.rArm&&this.B.rFore&&this.B.rHand){this.ARM={};for(const[s,p] of [[1,'l'],[-1,'r']]){const wp=n=>this.B[p+n].getWorldPosition(new THREE.Vector3());const du=wp('Fore').sub(wp('Arm')).normalize(),df=wp('Hand').sub(wp('Fore')).normalize();
+    this.ARM[s]={du,elev:Math.asin(Math.max(-1,Math.min(1,du.y)))/D2R,ax:new THREE.Vector3().crossVectors(df,ZA).normalize()}}
+   // sanity: left arm should be on +x (character's left = screen right when facing camera)
+   const lx=this.B.lArm.getWorldPosition(new THREE.Vector3()).x,rx=this.B.rArm.getWorldPosition(new THREE.Vector3()).x;if(lx<rx){this.flip=true}}
+  this.mixer=null;if(!this.ARM&&gltf.animations&&gltf.animations.length){this.mixer=new THREE.AnimationMixer(this.model);const a=this.mixer.clipAction(gltf.animations.find(c=>/idle|stand/i.test(c.name))||gltf.animations[0]);a.play()}
+  this.sm={};}
+ pose(k,q){const b=this.B[k],p=this.P[k];if(b)b.quaternion.copy(p.ip).multiply(q).multiply(p.rw)}
+ arm(s,E,F,Bd,T=0){if(!this.ARM)return;const ss=this.flip?-s:s;const A=this.ARM[ss],p=ss>0?'l':'r';this.pose(p+'Arm',qa(YA,-ss*F).multiply(qa(ZA,ss*(E-A.elev))).multiply(qa(A.du,ss*T)));this.pose(p+'Fore',qa(A.ax,Bd))}
+ sp(k,v,dt,r=8){const o=this.sm[k];if(o==null){this.sm[k]=v;return v}const n=o+(v-o)*Math.min(1,dt*r);this.sm[k]=n;return n}
+}
+async function loadLite(url){const r=await fetch(url);if(!r.ok)throw new Error('HTTP '+r.status);const j=await r.json();return liteToGlb(j)}
+function liteToGlb(j){const uri=j.buffers[0].uri,bin=Uint8Array.from(atob(uri.slice(uri.indexOf(',')+1)),c=>c.charCodeAt(0));delete j.buffers[0].uri;
+ const js=new TextEncoder().encode(JSON.stringify(j)),jp=(4-js.length%4)%4,jsP=new Uint8Array(js.length+jp);jsP.set(js);jsP.fill(32,js.length);
+ const bp=(4-bin.length%4)%4,total=12+8+jsP.length+8+bin.length+bp,glb=new ArrayBuffer(total),dv=new DataView(glb),u8=new Uint8Array(glb);
+ dv.setUint32(0,0x46546C67,true);dv.setUint32(4,2,true);dv.setUint32(8,total,true);dv.setUint32(12,jsP.length,true);dv.setUint32(16,0x4E4F534A,true);u8.set(jsP,20);
+ const o=20+jsP.length;dv.setUint32(o,bin.length+bp,true);dv.setUint32(o+4,0x004E4942,true);u8.set(bin,o+8);return glb}
+async function parseGlb(buf){const cib=window.createImageBitmap;window.createImageBitmap=undefined;try{return await new Promise((res,rej)=>new GLTFLoader().parse(buf,'',res,rej))}finally{window.createImageBitmap=cib}}
+function setChar(g,label){if(charRoot){scene.remove(charRoot);charRoot.traverse(o=>{if(o.geometry)o.geometry.dispose()})}CH=new Char(g,label);charRoot=CH.root;scene.add(charRoot);
+ $('charInfo').textContent=label+(CH.ARM?' · ✅ Ada rig: tangan & kepala bergerak':CH.mixer?' · Tiada rig tangan: guna animasi dalam fail':' · ⚠️ Tiada rig: watak cuma bergoyang');$('load').hidden=true}
+async function useDefault(){$('load').hidden=false;$('load').textContent='Memuatkan watak 3D...';try{setChar(await parseGlb(await loadLite('cikgu.json')),'Cikgu (asal)')}catch(e){$('load').textContent='Watak tak dapat dimuat. Cuba muat naik GLB.';setTimeout(()=>$('load').hidden=true,2500)}}
+$('useDef').onclick=useDefault;$('upGlb').onclick=()=>$('glbF').click();
+$('glbF').onchange=async e=>{const f=e.target.files[0];e.target.value='';if(!f)return;if(f.size>60*1048576){toast('Fail terlalu besar (maks 60MB)');return}$('load').hidden=false;$('load').textContent='Memuatkan '+f.name+'...';
+ try{const buf=await f.arrayBuffer();const g=await parseGlb(buf);setChar(g,f.name.replace(/\.[^.]+$/,'').slice(0,30))}catch(err){$('load').hidden=true;toast('Fail GLB tak dapat dibuka. Pastikan export GLB dari Meshy.')}};
+/* ================= timeline ================= */
+function estDur(s){const w=(s.script||'').trim().split(/\s+/).filter(Boolean).length;return Math.max(3.2,w*0.42/(P.voice.rate||1)+1.1)}
+function slideDur(i){const s=P.slides[i];if(P.voice.mode==='fail'&&AUD[i])return AUD[i].buf.duration+0.8;return estDur(s)}
+function chunks(text){const w=(text||'').trim().split(/\s+/).filter(Boolean);const out=[];let cur=[];for(const x of w){cur.push(x);if(cur.length>=6||/[.!?,]$/.test(x)&&cur.length>=3){out.push(cur.join(' '));cur=[]}}if(cur.length)out.push(cur.join(' '));return out}
+/* ================= drawing ================= */
+const RR=(x,y,w,h,r)=>{X.beginPath();X.roundRect(x,y,w,h,r)};
+function wrap(text,maxW,font){X.font=font;const words=String(text||'').split(/\s+/);const lines=[];let cur='';for(const w of words){const t=cur?cur+' '+w:w;if(X.measureText(t).width>maxW&&cur){lines.push(cur);cur=w}else cur=t}if(cur)lines.push(cur);return lines}
+const ease=t=>t<0?0:t>1?1:1-Math.pow(1-t,3);
+function drawBg(t,th){const g=X.createLinearGradient(0,0,0,H);g.addColorStop(0,th[0]);g.addColorStop(1,th[1]);X.fillStyle=g;X.fillRect(0,0,W,H);
+ X.globalAlpha=0.18;X.fillStyle='#fff';for(let i=0;i<7;i++){const x=(i*137+t*14*(i%2?1:-1))%(W+200)-100,y=120+i*170+Math.sin(t*0.6+i)*20;X.beginPath();X.arc(x<-100?x+W+200:x,y,40+(i%3)*26,0,7);X.fill()}X.globalAlpha=1;
+ // floor glow
+ const fg=X.createRadialGradient(W/2,H-60,10,W/2,H-60,420);fg.addColorStop(0,'rgba(255,255,255,.55)');fg.addColorStop(1,'rgba(255,255,255,0)');X.fillStyle=fg;X.fillRect(0,H-480,W,480)}
+function cover(im,x,y,w,h){const iw=im.naturalWidth||im.width,ih=im.naturalHeight||im.height;const s=Math.min(w/iw,h/ih);X.drawImage(im,x+(w-iw*s)/2,y+(h-ih*s)/2,iw*s,ih*s)}
+const BGC=new Map();function bgImg(s){if(!s.bg)return null;let e=BGC.get(s.bg);if(!e){e=new Image();e.src=s.bg;BGC.set(s.bg,e)}return e.complete&&e.naturalWidth?e:null}
+function drawSlide(i,lt,th,alpha){const s=P.slides[i];if(!s)return;const a=ease(lt/0.45)*alpha;if(a<=0)return;
+ const bi=bgImg(s);if(bi){X.save();X.globalAlpha=a;const iw=bi.naturalWidth,ih=bi.naturalHeight,sc=Math.max(W/iw,H/ih),z=1+0.03*Math.min(1,lt/8);X.translate(W/2,H/2);X.scale(z,z);X.drawImage(bi,-iw*sc/2,-ih*sc/2,iw*sc,ih*sc);X.restore();
+  if(s.type==='cta'){X.save();X.globalAlpha=a;drawBasket(lt,th);X.restore()}return}
+ X.save();X.globalAlpha=a;const yo=(1-ease(lt/0.45))*40;X.translate(0,yo);
+ const ink='#2f2440',acc=th[2];const cx=36,cy=70,cw=W-72;
+ // header tag
+ X.font='900 26px Nunito,sans-serif';const tag=(TYPES[s.type]||'').toUpperCase();const tw=X.measureText(tag).width+36;X.fillStyle=acc;RR(cx,cy,tw,46,23);X.fill();X.fillStyle='#fff';X.textAlign='left';X.textBaseline='middle';X.fillText(tag,cx+18,cy+24);
+ X.textAlign='right';X.fillStyle=ink;X.font='800 24px Nunito,sans-serif';X.fillText((P.name||'').slice(0,26),W-40,cy+24);X.textAlign='left';
+ const top=cy+66;
+ if(s.type==='cta'){drawCTA(lt,th,top);X.restore();return}
+ // card
+ const ch=s.type==='tajuk'?600:560;X.fillStyle='rgba(255,255,255,.96)';X.strokeStyle=ink;X.lineWidth=5;RR(cx,top,cw,ch,34);X.fill();X.stroke();
+ let y=top+30;
+ if(s.type==='tajuk'||s.type==='harga'){const ih=s.type==='tajuk'?330:250;if(prodImg){const bob=Math.sin(lt*2)*6;cover(prodImg,cx+30,y+bob,cw-60,ih)}y+=ih+14;
+  const L=wrap(s.title,cw-60,'900 56px "Baloo 2",Nunito,sans-serif');X.fillStyle=ink;X.textAlign='center';L.slice(0,2).forEach((l,k)=>X.fillText(l,W/2,y+30+k*58));y+=30+Math.min(2,L.length)*58;
+  if(s.type==='harga'&&s.points[0]){const k=ease((lt-0.5)/0.4);X.save();X.translate(W/2,y+24);X.scale(0.6+0.4*k,0.6+0.4*k);X.rotate(-0.04);X.fillStyle=acc;X.font='900 64px "Baloo 2",Nunito,sans-serif';const pw=X.measureText(s.points[0]).width+60;RR(-pw/2,-44,pw,88,44);X.fill();X.fillStyle='#fff';X.fillText(s.points[0],0,4);X.restore();y+=80;
+   if(s.points[1]){X.font='800 30px Nunito,sans-serif';X.fillStyle=ink;X.fillText(s.points[1],W/2,y+30)}}
+  else if(s.points.length){X.font='800 28px Nunito,sans-serif';X.fillStyle='#6b5f80';X.fillText(s.points.filter(Boolean).join(' · ').slice(0,44),W/2,y+6)}
+  X.textAlign='left';X.restore();return}
+ // fungsi / cara / kenapa: title + image strip + points
+ X.fillStyle=ink;X.font='900 50px "Baloo 2",Nunito,sans-serif';const L=wrap(s.title,cw-220,'900 50px "Baloo 2",Nunito,sans-serif');L.slice(0,2).forEach((l,k)=>X.fillText(l,cx+30,y+36+k*52));
+ if(prodImg)cover(prodImg,cx+cw-190,y-6,170,170);y+=Math.max(170,36+L.length*52)+10;
+ const pts=(s.points||[]).filter(Boolean).slice(0,4);const step=Math.min(1.1,(slideDurCache[i]||4)/(pts.length+1.5));
+ pts.forEach((p,k)=>{const at=0.5+k*step;const e=ease((lt-at)/0.35);if(e<=0)return;X.save();X.globalAlpha=a*e;X.translate((1-e)*-30,0);
+  const bx=cx+30,by=y+k*86;X.fillStyle=s.type==='cara'?acc:'#7fd8b8';X.beginPath();X.arc(bx+26,by+30,26,0,7);X.fill();X.fillStyle='#fff';X.textAlign='center';X.font='900 28px Nunito,sans-serif';X.fillText(s.type==='cara'?String(k+1):'✓',bx+26,by+31);X.textAlign='left';
+  X.fillStyle=ink;const pl=wrap(p,cw-120,'800 32px Nunito,sans-serif');pl.slice(0,2).forEach((l,j)=>X.fillText(l,bx+68,by+20+j*36));X.restore()});
+ X.restore()}
+function drawCTA(lt,th,top){const ink='#2f2440';X.textAlign='center';X.fillStyle='rgba(255,255,255,.96)';X.strokeStyle=ink;X.lineWidth=5;RR(36,top,W-72,430,34);X.fill();X.stroke();
+ if(prodImg)cover(prodImg,W/2-120,top+24,240,200);X.fillStyle=ink;const L=wrap(P.slides.find(s=>s.type==='cta')?.title||'Nak beli?',W-140,'900 56px "Baloo 2",Nunito,sans-serif');L.slice(0,1).forEach(l=>X.fillText(l,W/2,top+272));
+ X.font='800 32px Nunito,sans-serif';X.fillStyle=th[2];X.fillText((P.cta||'').slice(0,34),W/2,top+330);if(P.price){X.fillStyle=ink;X.font='900 40px "Baloo 2",Nunito,sans-serif';X.fillText(P.price,W/2,top+385)}
+ drawBasket(lt,th)}
+function drawBasket(lt,th){const ink='#2f2440';
+ const bx=W-150,by=H-330,bb=Math.abs(Math.sin(lt*4))*18;X.save();X.translate(bx,by-bb);X.fillStyle='#ffc61a';X.strokeStyle=ink;X.lineWidth=6;
+ X.beginPath();X.moveTo(-70,-20);X.lineTo(70,-20);X.lineTo(55,60);X.lineTo(-55,60);X.closePath();X.fill();X.stroke();X.beginPath();X.arc(0,-20,42,Math.PI,0);X.lineWidth=8;X.stroke();X.lineWidth=4;for(const xx of [-30,0,30]){X.beginPath();X.moveTo(xx,-10);X.lineTo(xx*0.8,50);X.stroke()}X.restore();
+ const ar=Math.sin(lt*5)*12;X.fillStyle=th[2];X.save();X.translate(bx,by+120+ar);X.beginPath();X.moveTo(-30,-40);X.lineTo(30,-40);X.lineTo(30,0);X.lineTo(55,0);X.lineTo(0,55);X.lineTo(-55,0);X.lineTo(-30,0);X.closePath();X.fill();X.restore();X.textAlign='left'}
+function drawSub(text,amp){if(!text)return;const L=wrap(text,W-120,'900 38px Nunito,sans-serif').slice(0,2);const h=L.length*48+30,y=H-70-h;X.fillStyle='rgba(47,36,64,.86)';RR(40,y,W-80,h,24);X.fill();X.fillStyle='#fff';X.textAlign='center';X.textBaseline='middle';L.forEach((l,k)=>X.fillText(l,W/2,y+38+k*48));X.textAlign='left';
+ // voice wave
+ X.fillStyle='#ffc94d';for(let k=0;k<5;k++){const hh=6+amp*26*Math.abs(Math.sin(performance.now()/90+k));RR(64+k*12,y-14-hh,7,hh*2,4);X.fill()}}
+/* ================= character motion ================= */
+let slideDurCache=[];
+function animChar(t,dt,st){if(!CH)return;const g={tenang:0.6,ceria:1,semangat:1.5}[P.gesture]||1;const amp=st.amp,s=P.slides[st.i]||{};const side=P.pos==='kanan'?-1:1;
+ const xp={kiri:-0.33,tengah:0,kanan:0.33}[P.pos]||-0.33;const sc=P.size||1;charRoot.position.set(xp*(P.pos==='tengah'?1:1),0,P.pos==='tengah'?-0.15:0);charRoot.scale.setScalar(sc*(P.pos==='tengah'?0.9:1));
+ const turn=P.pos==='tengah'?0:side*22;charRoot.rotation.y=CH.sp('ry',(turn+Math.sin(t*0.7)*4*g)*D2R,dt,3);
+ charRoot.position.y=Math.abs(Math.sin(t*2.2))*0.006*g+(st.cta?Math.abs(Math.sin(t*4))*0.02:0);
+ if(CH.mixer){CH.mixer.update(dt)}
+ const talk=amp;const beat=Math.sin(t*6.3),beat2=Math.sin(t*3.7+1);
+ CH.pose('head',qd(CH.sp('hx',talk*(6+5*beat)*g-2,dt),CH.sp('hy',(st.lookCard?side*14:0)+Math.sin(t*0.9)*6,dt,4),CH.sp('hz',Math.sin(t*1.3)*4*g+side*3,dt,4)));
+ CH.pose('chest',qd(CH.sp('cx',talk*3*g,dt),CH.sp('cy',Math.sin(t*0.8)*5*g,dt,3),Math.sin(t*2.2)*2*g));
+ // arm toward card / basket (screen side = character's left when on the left)
+ let pE,pF,pB,oE,oF,oB;
+ if(st.cta){pE=-35+Math.sin(t*5)*6;pF=55;pB=12;oE=-30+talk*20*beat2;oF=60;oB=80+talk*20}
+ else if(st.phase<0.9&&st.lookCard){pE=48+Math.sin(t*2)*6;pF=18;pB=10;oE=-66;oF=10;oB=18}
+ else{pE=-45+talk*(18+14*beat)*g;pF=45+talk*15*g;pB=75+talk*25*beat2*g;oE=-60+talk*(14*beat2)*g;oF=25+talk*20*g;oB=55+talk*30*g}
+ if(st.wave){pE=55;pF=12;pB=55+Math.sin(t*12)*35}
+ CH.arm(side,CH.sp('pE',pE,dt,6),CH.sp('pF',pF,dt,6),CH.sp('pB',pB,dt,6),0);CH.arm(-side,CH.sp('oE',oE,dt,5),CH.sp('oF',oF,dt,5),CH.sp('oB',oB,dt,5),0)}
+/* ================= player ================= */
+let RUN=null;// {mode:'preview'|'rec', t0, i, slideT0, ...}
+let lastF=performance.now();
+function frame(now){const dt=Math.min(0.05,(now-lastF)/1000);lastF=now;const t=now/1000;const th=THEMES[P.theme]||THEMES[0];
+ let st={i:0,lt:3,amp:0,sub:'',phase:1,lookCard:false,cta:false,wave:false};
+ if(RUN)st=RUN.step(now,dt);else{st.i=curEdit;st.lt=3;st.amp=0.15+0.1*Math.sin(t*2);st.cta=P.slides[curEdit]&&P.slides[curEdit].type==='cta'}
+ drawBg(t,th);const s=P.slides[st.i];
+ if(RUN&&st.prev!=null&&st.lt<0.45)drawSlide(st.prev,9,th,1-ease(st.lt/0.45));
+ drawSlide(st.i,st.lt,th,1);
+ if(R3&&CH){animChar(t,dt,st);R3.render(scene,cam);X.drawImage(C3,0,0)}
+ if(RUN)drawSub(st.sub,st.amp);else if(s)drawSub(chunks(s.script)[0]||'',0.2);
+ // watermark
+ X.font='800 20px Nunito,sans-serif';X.fillStyle='rgba(47,36,64,.45)';X.textAlign='right';X.fillText('Studio Promo 3D',W-24,H-24);X.textAlign='left';
+ requestAnimationFrame(frame)}
+function makeRun(mode,actx,dest){slideDurCache=P.slides.map((_,i)=>slideDur(i));const n=P.slides.length;let i=0,slideStart=performance.now(),speaking=false,spokenEnd=false,amp=0,analyser=null,abuf=null,ended=false,wordT=0,ttsDead=false,started=false;
+ const tts=P.voice.mode==='tts'&&mode==='preview'&&'speechSynthesis' in window;const useAud=P.voice.mode==='fail';
+ if(actx&&useAud){analyser=actx.createAnalyser();analyser.fftSize=512;abuf=new Uint8Array(analyser.fftSize);analyser.connect(dest||actx.destination)}
+ function startSlide(k){i=k;slideStart=performance.now();speaking=false;spokenEnd=false;const s=P.slides[k];
+  if(tts&&s.script){try{speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(s.script);const v=speechSynthesis.getVoices().find(v=>v.voiceURI===P.voice.uri);if(v){u.voice=v;u.lang=v.lang}else u.lang='ms-MY';u.rate=P.voice.rate;u.pitch=P.voice.pitch;
+    u.onstart=()=>{speaking=true;started=true};u.onboundary=()=>{wordT=performance.now()};const t0s=performance.now(),est=estDur(s);u.onend=()=>{speaking=false;spokenEnd=true;if(!started||(performance.now()-t0s)/1000<est*0.25)ttsDead=true};u.onerror=()=>{speaking=false;spokenEnd=true;if(!started)ttsDead=true};speechSynthesis.speak(u)}catch(e){spokenEnd=true;ttsDead=true}}
+  if(useAud&&AUD[k]&&actx){const src=actx.createBufferSource();src.buffer=AUD[k].buf;src.connect(analyser);src.start(actx.currentTime+0.25);RUN&&(RUN.srcs=(RUN.srcs||[]).concat(src))}}
+ const obj={mode,prevI:null,step(now,dt){let lt=(now-slideStart)/1000;let d=slideDurCache[i];
+   if(tts&&!ttsDead&&P.slides[i].script){if(!spokenEnd&&lt<d+12)d=Math.max(d,lt+0.3);else if(spokenEnd)d=Math.min(d,Math.max(lt,2.2)+0.5)}
+   if(lt>=d){if(i+1<n){obj.prevI=i;startSlide(i+1);lt=0}else{finish();return{i,lt:d,amp:0,sub:'',phase:1,cta:P.slides[i].type==='cta'}}}
+   const s=P.slides[i];
+   // amplitude
+   let target=0;if(analyser){analyser.getByteTimeDomainData(abuf);let m=0;for(let k=0;k<abuf.length;k+=4)m=Math.max(m,Math.abs(abuf[k]-128));target=Math.min(1,m/50)}
+   else if(tts&&!ttsDead){target=speaking?(0.55+0.45*Math.abs(Math.sin(now/110))):0}else{target=(lt>0.3&&lt<d-0.5)?(0.5+0.5*Math.abs(Math.sin(now/120))):0}
+   amp+=(target-amp)*Math.min(1,dt*12);
+   const cs=chunks(s.script);const sd=Math.max(0.5,(useAud&&AUD[i]?AUD[i].buf.duration:(tts?Math.max(lt,d-0.8):d-0.8)));const tot=cs.reduce((a,c)=>a+c.length,0)||1;let acc=0,sub='';const pos=Math.max(0,lt-0.25)/sd*tot;for(const c of cs){acc+=c.length;if(pos<=acc){sub=c;break}}if(!sub&&cs.length)sub=lt<d?cs[cs.length-1]:'';
+   return{i,prev:lt<0.45?obj.prevI:null,lt,amp,sub,phase:lt/d,lookCard:s.type!=='cta'&&lt>0.4&&lt<1.8,cta:s.type==='cta',wave:i===0&&lt<1.6}}};
+ function finish(){if(ended)return;ended=true;obj.done&&obj.done()}
+ obj.start=()=>startSlide(0);return obj}
+/* music */
+function scheduleMusic(actx,dest,dur){if(P.music!=='on')return;const g=actx.createGain();g.gain.value=0.16;g.connect(dest);const bpm=104,b=60/bpm,t0=actx.currentTime+0.1;const prog=[[261.6,329.6,392],[220,261.6,329.6],[174.6,220,261.6],[196,246.9,293.7]];
+ for(let k=0;k*b<dur;k++){const t=t0+k*b,ch=prog[Math.floor(k/4)%4];if(k%2===0){const o=actx.createOscillator(),gg=actx.createGain();o.frequency.setValueAtTime(110,t);o.frequency.exponentialRampToValueAtTime(42,t+0.18);gg.gain.setValueAtTime(0.5,t);gg.gain.exponentialRampToValueAtTime(0.001,t+0.22);o.connect(gg).connect(g);o.start(t);o.stop(t+0.25)}
+  const n=ch[k%3]*(k%8<4?1:2);const o2=actx.createOscillator(),g2=actx.createGain();o2.type='triangle';o2.frequency.value=n;g2.gain.setValueAtTime(0.18,t);g2.gain.exponentialRampToValueAtTime(0.001,t+b*0.9);o2.connect(g2).connect(g);o2.start(t);o2.stop(t+b);
+  if(k%4===0){for(const f of ch){const o3=actx.createOscillator(),g3=actx.createGain();o3.type='sine';o3.frequency.value=f/2;g3.gain.setValueAtTime(0.0001,t);g3.gain.linearRampToValueAtTime(0.07,t+0.1);g3.gain.linearRampToValueAtTime(0.0001,t+b*4);o3.connect(g3).connect(g);o3.start(t);o3.stop(t+b*4)}}}}
+let ACTX=null;const getActx=()=>{if(!ACTX){try{ACTX=new (window.AudioContext||window.webkitAudioContext)()}catch(e){}}if(ACTX&&ACTX.state==='suspended')ACTX.resume();return ACTX};
+let musicNodes=null;
+function stopAll(){if(RUN){(RUN.srcs||[]).forEach(s=>{try{s.stop()}catch(e){}});RUN=null}try{speechSynthesis.cancel()}catch(e){}if(musicNodes){try{musicNodes.disconnect()}catch(e){}musicNodes=null}$('play').hidden=false;$('stop').hidden=true;$('rec').disabled=false;$('play').disabled=false}
+$('play').onclick=()=>{stopAll();const a=getActx();let dest=null;if(a){dest=a.createGain();dest.connect(a.destination);musicNodes=dest;const total=P.slides.reduce((s,_,i)=>s+slideDur(i),0)+10;scheduleMusic(a,dest,total)}
+ RUN=makeRun('preview',a,dest);RUN.done=()=>{stopAll()};RUN.start();$('play').hidden=true;$('stop').hidden=false;$('rec').disabled=true};
+$('stop').onclick=()=>stopAll();
+/* export */
+let lastBlob=null,lastExt='webm';
+$('rec').onclick=async()=>{stopAll();if(!out.captureStream||!window.MediaRecorder){toast('Browser ni tak boleh rakam video. Cuba Chrome.');return}
+ const types=['video/mp4;codecs=avc1,mp4a','video/mp4','video/webm;codecs=vp9,opus','video/webm;codecs=vp8,opus','video/webm'];const mt=types.find(t=>MediaRecorder.isTypeSupported(t));if(!mt){toast('Format video tak disokong');return}
+ if(P.voice.mode==='tts')$('recNote').textContent='Nota: suara automatik tak masuk dalam fail. Video ada sari kata & muzik.';else $('recNote').textContent='';
+ const a=getActx();const stream=out.captureStream(30);let dest=null;if(a){dest=a.createMediaStreamDestination();dest.stream.getAudioTracks().forEach(tr=>stream.addTrack(tr));const total=P.slides.reduce((s,_,i)=>s+slideDur(i),0)+2;scheduleMusic(a,dest,total)}
+ const rec=new MediaRecorder(stream,{mimeType:mt,videoBitsPerSecond:5000000});const ch=[];rec.ondataavailable=e=>{if(e.data.size)ch.push(e.data)};
+ const total=P.slides.reduce((s,_,i)=>s+slideDur(i),0);$('progBox').hidden=false;$('rec').disabled=true;$('play').disabled=true;$('saveVid').hidden=true;$('vidOut').hidden=true;
+ RUN=makeRun('rec',a,dest);const t0=performance.now();const pi=setInterval(()=>{$('prog').style.width=Math.min(100,(performance.now()-t0)/1000/total*100)+'%'},200);
+ RUN.done=()=>{setTimeout(()=>{rec.stop()},500)};
+ rec.onstop=()=>{clearInterval(pi);stream.getTracks().forEach(t=>t.stop());RUN=null;$('rec').disabled=false;$('play').disabled=false;$('progBox').hidden=true;lastExt=mt.startsWith('video/mp4')?'mp4':'webm';lastBlob=new Blob(ch,{type:mt.split(';')[0]});
+  const v=$('vidOut');v.src=URL.createObjectURL(lastBlob);v.hidden=false;$('saveVid').hidden=false;$('recNote').textContent=(lastExt==='webm'?'Video siap (WebM). Kalau TikTok tak terima, tukar ke MP4 di CapCut. ':'Video siap (MP4). ')+(P.voice.mode==='tts'?'Suara automatik tak termasuk.':'');toast('Video siap 🎉')};
+ rec.start(250);RUN.start()};
+$('saveVid').onclick=async()=>{if(!lastBlob)return;const fn=(P.name||'promo').replace(/[^\w\- ]+/g,'').trim().slice(0,30)||'promo';let dl=null;try{if(window.claude&&claude.use)dl=await claude.use('downloads')}catch(e){}
+ if(dl){try{await dl.save({filename:fn+'.'+lastExt,data:lastBlob});toast('Video disimpan ✨');return}catch(e){if(e&&e.code==='declined')return}}
+ const a=document.createElement('a');a.href=URL.createObjectURL(lastBlob);a.download=fn+'.'+lastExt;document.body.appendChild(a);a.click();a.remove();toast('Kalau tak tersimpan, tekan lama pada video untuk simpan')};
+/* ================= UI ================= */
+let curEdit=0;
+document.querySelectorAll('#tabs button').forEach(b=>b.onclick=()=>{document.querySelectorAll('#tabs button').forEach(x=>x.classList.toggle('on',x===b));for(const t of ['produk','slide','watak','suara'])$('p_'+t).hidden=t!==b.dataset.t;if(b.dataset.t==='slide')renderSlides()});
+function bindSeg(id,get,set){const el=$(id);const upd=()=>el.querySelectorAll('button').forEach(b=>b.classList.toggle('on',b.dataset.v===get()));el.onclick=e=>{const b=e.target.closest('button');if(!b)return;set(b.dataset.v);upd();save()};upd()}
+$('pName').value=P.name;$('pPrice').value=P.price;$('pCta').value=P.cta;$('pName').oninput=e=>{P.name=e.target.value;save()};$('pPrice').oninput=e=>{P.price=e.target.value;save()};$('pCta').oninput=e=>{P.cta=e.target.value;save()};
+$('themes').innerHTML='';THEMES.forEach((th,k)=>{const b=document.createElement('button');b.style.background=`linear-gradient(135deg,${th[0]},${th[2]})`;b.setAttribute('aria-label','Tema '+(k+1));b.onclick=()=>{P.theme=k;save();[...$('themes').children].forEach((x,j)=>x.classList.toggle('on',j===k))};if(k===P.theme)b.classList.add('on');$('themes').appendChild(b)});
+$('pImgB').onclick=()=>$('pImgF').click();
+$('pImgF').onchange=async e=>{const f=e.target.files[0];e.target.value='';if(!f)return;try{const im=await new Promise((r,j)=>{const i=new Image();i.onload=()=>r(i);i.onerror=j;i.src=URL.createObjectURL(f)});const s=Math.min(1,800/Math.max(im.width,im.height));const c=document.createElement('canvas');c.width=Math.round(im.width*s);c.height=Math.round(im.height*s);c.getContext('2d').drawImage(im,0,0,c.width,c.height);
+ const isPng=/png|webp/.test(f.type);P.img=c.toDataURL(isPng?'image/png':'image/jpeg',0.88);if(P.img.length>2500000)P.img=c.toDataURL('image/jpeg',0.82);save();loadProd()}catch(err){toast('Gambar tak dapat dibuka')}};
+bindSeg('posSeg',()=>P.pos,v=>P.pos=v);bindSeg('gesSeg',()=>P.gesture,v=>P.gesture=v);$('cSize').value=P.size;$('cSize').oninput=e=>{P.size=+e.target.value;save()};
+bindSeg('vSeg',()=>P.voice.mode,v=>{P.voice.mode=v;$('ttsBox').hidden=v!=='tts';$('failBox').hidden=v!=='fail'});$('ttsBox').hidden=P.voice.mode!=='tts';$('failBox').hidden=P.voice.mode!=='fail';
+bindSeg('mSeg',()=>P.music,v=>P.music=v);
+$('vRate').value=P.voice.rate;$('vPitch').value=P.voice.pitch;$('vRate').oninput=e=>{P.voice.rate=+e.target.value;save()};$('vPitch').oninput=e=>{P.voice.pitch=+e.target.value;save()};
+function fillVoices(){const sel=$('vVoice');if(!('speechSynthesis' in window)){sel.innerHTML='<option>Tiada suara automatik dalam browser ni</option>';return}const vs=speechSynthesis.getVoices();if(!vs.length)return;
+ const rank=v=>/^ms/i.test(v.lang)?0:/^id/i.test(v.lang)?1:/^en/i.test(v.lang)?2:3;const L=vs.slice().sort((a,b)=>rank(a)-rank(b));sel.innerHTML='';for(const v of L){const o=document.createElement('option');o.value=v.voiceURI;o.textContent=(rank(v)===0?'🇲🇾 ':rank(v)===1?'🇮🇩 ':'')+v.name+' ('+v.lang+')';sel.appendChild(o)}
+ if(!P.voice.uri||!L.some(v=>v.voiceURI===P.voice.uri)){P.voice.uri=L[0].voiceURI}sel.value=P.voice.uri;if(rank(L[0])>1)$('ttsBox').querySelector('.warn').insertAdjacentHTML('beforebegin','<div class="note">Telefon ni tiada suara Bahasa Melayu. Pilih suara Indonesia kalau ada, atau guna suara sendiri.</div>')}
+if('speechSynthesis' in window){fillVoices();speechSynthesis.onvoiceschanged=fillVoices}else fillVoices();
+$('vVoice').onchange=e=>{P.voice.uri=e.target.value;save()};
+$('vTest').onclick=()=>{try{speechSynthesis.cancel();const u=new SpeechSynthesisUtterance('Hai! Saya akan terangkan produk ni untuk awak.');const v=speechSynthesis.getVoices().find(v=>v.voiceURI===P.voice.uri);if(v){u.voice=v;u.lang=v.lang}u.rate=P.voice.rate;u.pitch=P.voice.pitch;speechSynthesis.speak(u)}catch(e){toast('Suara automatik tak tersedia')}};
+/* slides editor */
+function renderSlides(){const box=$('slides');box.innerHTML='';P.slides.forEach((s,i)=>{const d=document.createElement('div');d.className='slide'+(i===curEdit?' cur':'');
+ const hd=document.createElement('div');hd.className='shd';const tb=document.createElement('b');tb.textContent=(i+1)+'. '+(TYPES[s.type]||'');hd.appendChild(tb);
+ const mk=(t,fn,dis)=>{const b=document.createElement('button');b.className='b s';b.textContent=t;b.onclick=fn;if(dis)b.disabled=true;return b};
+ hd.append(mk('👁',()=>{curEdit=i;renderSlides()}),mk('↑',()=>{[P.slides[i-1],P.slides[i]]=[P.slides[i],P.slides[i-1]];swapAud(i,i-1);curEdit=i-1;save();renderSlides()},i===0),mk('↓',()=>{[P.slides[i+1],P.slides[i]]=[P.slides[i],P.slides[i+1]];swapAud(i,i+1);curEdit=i+1;save();renderSlides()},i===P.slides.length-1),mk('✕',()=>{if(P.slides.length<=1)return;P.slides.splice(i,1);shiftAud(i);curEdit=Math.max(0,Math.min(curEdit,P.slides.length-1));save();renderSlides()}));d.appendChild(hd);
+ const lab=t=>{const l=document.createElement('div');l.className='lbl';l.textContent=t;return l};
+ const ti=document.createElement('input');ti.type='text';ti.maxLength=40;ti.value=s.title||'';ti.oninput=()=>{s.title=ti.value;curEdit=i;save()};
+ if(s.type!=='cta'){d.append(lab(s.type==='harga'?'Tajuk':'Tajuk slide'),ti);
+  const n=s.type==='harga'?2:s.type==='tajuk'?2:4;d.appendChild(lab(s.type==='harga'?'Harga & nota kecil':s.type==='cara'?'Langkah':'Poin'));for(let k=0;k<n;k++){const pi=document.createElement('input');pi.type='text';pi.maxLength=46;pi.placeholder=s.type==='harga'?(k?'cth: Stok terhad':'cth: RM29.90'):'Poin '+(k+1);pi.value=(s.points||[])[k]||'';pi.style.marginBottom='5px';pi.oninput=()=>{s.points=s.points||[];s.points[k]=pi.value;curEdit=i;save()};d.appendChild(pi)}}
+ else d.append(lab('Tajuk'),ti);
+ {const br=document.createElement('div');br.className='row';br.style.margin='8px 0 2px';const th=document.createElement('img');th.className='thumb';th.alt='';th.style.width='40px';th.style.height='71px';if(s.bg)th.src=s.bg;else th.hidden=true;
+  const bf=document.createElement('input');bf.type='file';bf.accept='image/*';bf.hidden=true;bf.onchange=async()=>{const f=bf.files[0];bf.value='';if(!f)return;try{s.bg=await slideImg(f);save();renderSlides()}catch(err){toast('Gambar tak dapat dibuka')}};
+  br.append(th,mk(s.bg?'🖼️ Tukar gambar Canva':'🖼️ Guna gambar Canva',()=>bf.click()),bf);if(s.bg)br.append(mk('🗑',()=>{s.bg=null;save();renderSlides()}));d.appendChild(br)}
+ d.appendChild(lab('Skrip (watak cakap)'));const sc=document.createElement('textarea');sc.maxLength=400;sc.value=s.script||'';sc.oninput=()=>{s.script=sc.value;curEdit=i;save()};d.appendChild(sc);
+ const ar=document.createElement('div');ar.className='row';ar.style.marginTop='6px';ar.style.flexWrap='wrap';const info=document.createElement('span');info.className='aud';info.textContent=AUD[i]?('🔊 '+AUD[i].name+' · '+AUD[i].buf.duration.toFixed(1)+'s'):'Tiada suara sendiri';
+ const fi=document.createElement('input');fi.type='file';fi.accept='audio/*';fi.hidden=true;fi.onchange=async()=>{const f=fi.files[0];fi.value='';if(!f)return;await setAudio(i,await f.arrayBuffer(),f.name.slice(0,24))};
+ let mr=null;const rb=mk('🎙️ Rakam',async()=>{if(mr){mr.stop();return}try{const ms=await navigator.mediaDevices.getUserMedia({audio:true});const chs=[];mr=new MediaRecorder(ms);mr.ondataavailable=e=>chs.push(e.data);mr.onstop=async()=>{ms.getTracks().forEach(t=>t.stop());mr=null;const b=new Blob(chs,{type:chs[0]?.type||'audio/webm'});await setAudio(i,await b.arrayBuffer(),'rakaman')};mr.start();rb.textContent='■ Henti rakam';rb.classList.add('p')}catch(e){toast('Mikrofon tak dibenarkan di sini. Guna 📁 Fail suara.')}});
+ ar.append(rb,mk('📁 Fail suara',()=>fi.click()),fi);if(AUD[i])ar.append(mk('▶',()=>{const a=getActx();if(!a)return;const src=a.createBufferSource();src.buffer=AUD[i].buf;src.connect(a.destination);src.start()}),mk('🗑',()=>{delete AUD[i];renderSlides()}));ar.append(info);d.appendChild(ar);
+ d.onclick=e=>{if(e.target.tagName==='DIV'||e.target.tagName==='B'){curEdit=i;box.querySelectorAll('.slide').forEach((x,j)=>x.classList.toggle('cur',j===i))}};box.appendChild(d)})}
+async function setAudio(i,ab,name){const a=getActx();if(!a){toast('Audio tak disokong');return}try{const buf=await a.decodeAudioData(ab);AUD[i]={buf,name};if(P.voice.mode!=='fail'){P.voice.mode='fail';bindSeg('vSeg',()=>P.voice.mode,v=>{P.voice.mode=v;$('ttsBox').hidden=v!=='tts';$('failBox').hidden=v!=='fail'});$('ttsBox').hidden=true;$('failBox').hidden=false;save();toast('Suara sendiri dihidupkan 🎙️')}renderSlides()}catch(e){toast('Fail suara tak dapat dibaca. Cuba MP3/WAV.')}}
+function swapAud(a,b){const x=AUD[a],y=AUD[b];if(y)AUD[a]=y;else delete AUD[a];if(x)AUD[b]=x;else delete AUD[b]}
+function shiftAud(i){const n=P.slides.length+1;for(let k=i;k<n;k++){if(AUD[k+1])AUD[k]=AUD[k+1];else delete AUD[k]}}
+async function slideImg(f){const im=await new Promise((r,j)=>{const i=new Image();i.onload=()=>r(i);i.onerror=j;i.src=URL.createObjectURL(f)});const sc=Math.min(1,Math.max(W/im.width,H/im.height));const c=document.createElement('canvas');c.width=Math.round(im.width*sc);c.height=Math.round(im.height*sc);c.getContext('2d').drawImage(im,0,0,c.width,c.height);return c.toDataURL('image/jpeg',0.85)}
+$('bulkImg').onclick=()=>$('bulkF').click();
+$('bulkF').onchange=async e=>{const fs=[...e.target.files].sort((a,b)=>a.name.localeCompare(b.name,undefined,{numeric:true}));e.target.value='';if(!fs.length)return;if(fs.length>12){toast('Maksimum 12 slide');fs.length=12}
+ toast('Memuat '+fs.length+' slide...');const imgs=[];for(const f of fs){try{imgs.push(await slideImg(f))}catch(err){}}
+ imgs.forEach((u,k)=>{if(!P.slides[k])P.slides.push({type:k===imgs.length-1?'cta':'fungsi',title:'',points:[],script:''});P.slides[k].bg=u});
+ if(P.slides.length>imgs.length){P.slides.length=imgs.length;for(const k of Object.keys(AUD))if(+k>=imgs.length)delete AUD[k]}
+ curEdit=0;save();renderSlides();toast(imgs.length+' slide Canva dimasukkan ✨')};
+function parseScript(txt){const parts=txt.split(/^\s*(?:\*\*)?\s*(?:slide|SLIDE|Slide)\s*#?\s*(\d+)[^\n]*$/m);const out=[];
+ for(let k=1;k<parts.length;k+=2){const n=+parts[k],body=parts[k+1]||'';let m=body.match(/(?:skrip|script|cakap|voice ?over)\s*[:：]\s*([\s\S]*?)(?=\n\s*(?:\*\*)?\s*(?:tajuk|poin|gambar|canva|prompt|nota|jenis)\s*[:：]|$)/i);
+  let sc=(m?m[1]:'').replace(/\*\*/g,'').replace(/\s+/g,' ').trim().replace(/^["“']+|["”']+$/g,'').trim();const tm=body.match(/tajuk\s*[:：]\s*(.+)/i);const jm=body.match(/jenis\s*[:：]\s*(.+)/i);
+  out.push({n,script:sc.slice(0,400),title:tm?tm[1].replace(/\*\*/g,'').trim().slice(0,40):'',type:jm?Object.keys(TYPES).find(k=>jm[1].toLowerCase().includes(k)||jm[1].toLowerCase().includes(TYPES[k].toLowerCase()))||null:null})}
+ return out}
+$('scriptGo').onclick=()=>{const L=parseScript($('scriptIn').value);if(!L.length){toast('Format tak dikenal. Mesti ada "SLIDE 1" dan "Skrip:"');return}
+ for(const x of L){const k=x.n-1;if(k<0||k>11)continue;while(P.slides.length<=k)P.slides.push({type:'fungsi',title:'',points:[],script:''});const s=P.slides[k];if(x.script)s.script=x.script;if(x.title)s.title=x.title;if(x.type)s.type=x.type}
+ save();renderSlides();toast(L.length+' skrip dimasukkan ✅')};
+const TPL={tajuk:{title:'Produk baru!',points:['',''],script:'Hai semua! Jom tengok produk ni.'},fungsi:{title:'Apa fungsi dia?',points:['','',''],script:''},cara:{title:'Cara guna',points:['','',''],script:''},kenapa:{title:'Kenapa best?',points:['','',''],script:''},harga:{title:'Harga istimewa',points:['',''],script:''},cta:{title:'Nak beli?',points:[],script:'Tekan beg kuning kat bawah ni sekarang!'}};
+$('addSlide').onclick=()=>{if(P.slides.length>=12){toast('Maksimum 12 slide');return}const t=$('addType').value;const ctaIdx=P.slides.findIndex(s=>s.type==='cta');const ns={type:t,...JSON.parse(JSON.stringify(TPL[t]))};if(t!=='cta'&&ctaIdx>=0){P.slides.splice(ctaIdx,0,ns);for(let k=P.slides.length-1;k>ctaIdx;k--){if(AUD[k-1])AUD[k]=AUD[k-1];else delete AUD[k]}delete AUD[ctaIdx];curEdit=ctaIdx}else{P.slides.push(ns);curEdit=P.slides.length-1}save();renderSlides()};
+/* boot */
+loadProd();renderSlides();requestAnimationFrame(frame);if(R3)useDefault();else{$('load').textContent='3D tak disokong dalam browser ni';}
+</script>
+</body></html>
